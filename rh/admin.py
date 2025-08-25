@@ -36,7 +36,7 @@ class DesligamentoAdmin(admin.ModelAdmin):
     list_display = (
         "nome",
         "codigo",
-        "supervisor",  # agora vem da property
+        "supervisor",
         "demissao",
         "area_atuacao",
         "criado_por",
@@ -68,7 +68,7 @@ class DesligamentoAdmin(admin.ModelAdmin):
     )
 
     def save_model(self, request, obj, form, change):
-        if not obj.pk:  # só na criação
+        if not obj.pk: 
             obj.criado_por = request.user
         super().save_model(request, obj, form, change)
 

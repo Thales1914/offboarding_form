@@ -47,5 +47,5 @@ class Desligamento(models.Model):
 
     @property
     def supervisor(self):
-        """Supervisor vem do usuário que criou o registro"""
+
         return self.criado_por.first_name or self.criado_por.username if self.criado_por else "—"
