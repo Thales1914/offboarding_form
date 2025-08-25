@@ -12,7 +12,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ----------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-insegura-local")
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
+
 
 ALLOWED_HOSTS = ["*"]  # Render injeta automaticamente o host
 

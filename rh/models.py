@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Desligamento(models.Model):
-    supervisor = models.CharField("Supervisor", max_length=100)
     codigo = models.CharField("Código", max_length=20)
     nome = models.CharField("Nome", max_length=100)
     contato = models.CharField("Contato Particular", max_length=50, blank=True, null=True)
@@ -45,3 +44,8 @@ class Desligamento(models.Model):
 
     def __str__(self):
         return f"{self.nome} ({self.codigo})"
+
+    @property
+    def supervisor(self):
+        """Supervisor vem do usuário que criou o registro"""
+        return self.criado_por.first_name or self.criado_por.username if self.criado_por else "—"

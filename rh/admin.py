@@ -36,18 +36,18 @@ class DesligamentoAdmin(admin.ModelAdmin):
     list_display = (
         "nome",
         "codigo",
-        "supervisor",
+        "supervisor",  # agora vem da property
         "demissao",
         "area_atuacao",
         "criado_por",
         "qtd_desligamentos_colaborador",
     )
-    search_fields = ("nome", "codigo", "supervisor", "area_atuacao")
-    list_filter = ("supervisor", "area_atuacao", "demissao", "criado_por", FiltroQtdDesligamentos)
+    search_fields = ("nome", "codigo", "area_atuacao")
+    list_filter = ("area_atuacao", "demissao", "criado_por", FiltroQtdDesligamentos)
 
     fieldsets = (
         ('📌 Dados do Colaborador', {
-            'fields': ('supervisor', 'codigo', 'nome', 'contato', 'admissao', 'demissao', 'area_atuacao')
+            'fields': ('codigo', 'nome', 'contato', 'admissao', 'demissao', 'area_atuacao')
         }),
         ('📄 Motivo do desligamento', {
             'fields': ('motivo',)
@@ -66,6 +66,11 @@ class DesligamentoAdmin(admin.ModelAdmin):
             'fields': ('observacoes',)
         }),
     )
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:  # só na criação
+            obj.criado_por = request.user
+        super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -120,7 +125,7 @@ class DesligamentoAdmin(admin.ModelAdmin):
 
         ws["B3"] = desligamento.supervisor or ""
         ws["E3"] = desligamento.demissao.strftime("%d/%m/%Y") if desligamento.demissao else ""
-        ws["F2"] = desligamento.demissao.strftime("%H:%M") if desligamento.demissao else ""
+        ws["F2"] = desligamento.admissao.strftime("%d/%m/%Y") if desligamento.admissao else ""
 
         ws["A6"] = desligamento.codigo or ""
         ws["B6"] = desligamento.nome or ""
