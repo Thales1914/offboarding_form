@@ -31,7 +31,6 @@ class Desligamento(models.Model):
     telemarketing = models.BooleanField("Área liberada para Telemarketing?", default=False)
     nova_contratacao = models.BooleanField("Há previsão de nova contratação?", default=False)
 
-    observacoes = models.TextField("Observações", blank=True, null=True)
 
     data_registro = models.DateField("Data de Registro", auto_now_add=True)
 

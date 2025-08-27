@@ -41,7 +41,6 @@ def exportar_desligamento_excel(desligamento, modelo_path=None):
     ws["E23"] = "SIM" if desligamento.telemarketing else "NÃO"
     ws["E24"] = "SIM" if desligamento.nova_contratacao else "NÃO"
 
-    ws["C26"] = desligamento.observacoes or ""
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -69,9 +69,7 @@ class DesligamentoAdmin(admin.ModelAdmin):
         ('🔎 Perguntas extras', {
             'fields': ('substituto', 'telemarketing', 'nova_contratacao')
         }),
-        ('📝 Observações', {
-            'fields': ('observacoes',)
-        }),
+
     )
 
     def save_model(self, request, obj, form, change):
