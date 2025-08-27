@@ -2,6 +2,13 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
+DESTINATARIOS = [
+    "rh@omegadistribuidora.com.br",
+    "comercial.2@omegadistribuidora.com.br",
+    "comercial.4@omegadistribuidora.com.br",
+]
+
+
 def notificar_admissao(obj, usuario):
     send_mail(
         subject="📥 Nova admissão registrada",
@@ -15,7 +22,7 @@ def notificar_admissao(obj, usuario):
             f"Registrado por: {usuario.get_username()}"
         ),
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=["rh@omegadistribuidora.com.br"],
+        recipient_list=DESTINATARIOS,
     )
 
 
@@ -31,5 +38,5 @@ def notificar_desligamento(obj, usuario):
             f"Registrado por: {usuario.get_username()}"
         ),
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=["rh@omegadistribuidora.com.br"],
+        recipient_list=DESTINATARIOS,
     )
