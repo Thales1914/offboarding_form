@@ -85,7 +85,7 @@ class Admissao(models.Model):
     operacao = models.CharField("Operação", max_length=10, blank=True, null=True)
 
     data_admissao = models.DateField("Data de Admissão", null=True, blank=True)
-    cargo = models.CharField("Cargo a Ocupiar", max_length=100, blank=True, null=True)
+    cargo = models.CharField("Cargo a Ocupar", max_length=100, blank=True, null=True)
     substituicao = models.BooleanField("É substituição?", default=False)
 
     supervisor_responsavel = models.CharField("Supervisor Responsável", max_length=100, blank=True, null=True)

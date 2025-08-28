@@ -11,7 +11,6 @@ def exportar_desligamento_excel(desligamento, modelo_path=None):
 
     ws["B3"] = desligamento.supervisor or ""
     ws["E3"] = desligamento.demissao.strftime("%d/%m/%Y") if desligamento.demissao else ""
-    ws["F2"] = desligamento.admissao.strftime("%d/%m/%Y") if desligamento.admissao else ""
 
     ws["A6"] = desligamento.codigo or ""
     ws["B6"] = desligamento.nome or ""
@@ -25,7 +24,7 @@ def exportar_desligamento_excel(desligamento, modelo_path=None):
     itens = [
         desligamento.fardamento,
         desligamento.chip_voz,
-        desligamento.chip_dados,
+        desligamento.chip_dados,    
         desligamento.tablet,
         desligamento.carregador_tablet,
         desligamento.fone_tablet,
