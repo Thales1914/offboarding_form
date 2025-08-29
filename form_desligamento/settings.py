@@ -5,20 +5,14 @@ import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ============================
-# Configurações de Segurança
-# ============================
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-insegura-local")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
-# ============================
-# Apps
-# ============================
 INSTALLED_APPS = [
-    "jazzmin",  # Remova se não for usar
+    "jazzmin", 
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -28,12 +22,9 @@ INSTALLED_APPS = [
     "rh",
 ]
 
-# ============================
-# Middlewares
-# ============================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # serve arquivos estáticos
+    "whitenoise.middleware.WhiteNoiseMiddleware", 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -42,9 +33,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ============================
-# URL / WSGI
-# ============================
 ROOT_URLCONF = "form_desligamento.urls"
 
 TEMPLATES = [
@@ -65,9 +53,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "form_desligamento.wsgi.application"
 
-# ============================
-# Banco de Dados
-# ============================
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -75,9 +60,6 @@ DATABASES = {
     )
 }
 
-# ============================
-# Validações de senha
-# ============================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -85,26 +67,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ============================
-# Idioma / Fuso horário
-# ============================
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
-# ============================
-# Arquivos estáticos
-# ============================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ============================
-# Logging (para debug no Render)
-# ============================
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
