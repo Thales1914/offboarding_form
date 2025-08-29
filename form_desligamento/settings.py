@@ -9,6 +9,7 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -74,14 +75,44 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Omega RH",
+    "site_header": "Omega Distribuidora",
+    "site_brand": "Omega RH",
+    "welcome_sign": "Bem-vindo ao Painel de RH",
+    "copyright": "Omega Distribuidora © 2025",
+
+    "icons": {
+        "rh.Desligamento": "fas fa-user-slash",
+        "rh.Admissao": "fas fa-user-plus",
+        "rh.Distrato": "fas fa-file-signature",
+    },
+
+
+    "order_with_respect_to": ["rh"],
+    "show_ui_builder": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "cosmo",                 
+    "navbar": "navbar-dark bg-primary",
+    "sidebar": "sidebar-dark-primary",
+    "brand_small_text": False,      
+    "body_small_text": False,        
+    "footer_small_text": False,      
+    "sidebar_nav_small_text": False,  
+    "sidebar_disable_expand": False,  
+    "brand_colour": "navbar-primary",
+}
+
+
+LOGIN_REDIRECT_URL = "/admin/"
+LOGOUT_REDIRECT_URL = "/admin/login/"
