@@ -1,15 +1,24 @@
 from pathlib import Path
 import os
 import dj_database_url
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ============================
+# Configurações de Segurança
+# ============================
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-insegura-local")
-DEBUG = os.getenv("DEBUG", "True") == "True"
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
+# ============================
+# Apps
+# ============================
 INSTALLED_APPS = [
-    "jazzmin",
+    "jazzmin",  # Remova se não for usar
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -19,9 +28,12 @@ INSTALLED_APPS = [
     "rh",
 ]
 
+# ============================
+# Middlewares
+# ============================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # serve arquivos estáticos
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -30,6 +42,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# ============================
+# URL / WSGI
+# ============================
 ROOT_URLCONF = "form_desligamento.urls"
 
 TEMPLATES = [
@@ -50,6 +65,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "form_desligamento.wsgi.application"
 
+# ============================
+# Banco de Dados
+# ============================
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -57,6 +75,9 @@ DATABASES = {
     )
 }
 
+# ============================
+# Validações de senha
+# ============================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -64,55 +85,37 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# ============================
+# Idioma / Fuso horário
+# ============================
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
+# ============================
+# Arquivos estáticos
+# ============================
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
-
-JAZZMIN_SETTINGS = {
-    "site_title": "Omega RH",
-    "site_header": "Omega Distribuidora",
-    "site_brand": "Omega RH",
-    "welcome_sign": "Bem-vindo ao Painel de RH",
-    "copyright": "Omega Distribuidora © 2025",
-
-    "icons": {
-        "rh.Desligamento": "fas fa-user-slash",
-        "rh.Admissao": "fas fa-user-plus",
-        "rh.Distrato": "fas fa-file-signature",
+# ============================
+# Logging (para debug no Render)
+# ============================
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+        },
     },
-
-
-    "order_with_respect_to": ["rh"],
-    "show_ui_builder": False,
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
 }
-
-JAZZMIN_UI_TWEAKS = {
-    "theme": "cosmo",                 
-    "navbar": "navbar-dark bg-primary",
-    "sidebar": "sidebar-dark-primary",
-    "brand_small_text": False,      
-    "body_small_text": False,        
-    "footer_small_text": False,      
-    "sidebar_nav_small_text": False,  
-    "sidebar_disable_expand": False,  
-    "brand_colour": "navbar-primary",
-}
-
-
-LOGIN_REDIRECT_URL = "/admin/"
-LOGOUT_REDIRECT_URL = "/admin/login/"
