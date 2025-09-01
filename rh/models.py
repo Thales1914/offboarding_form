@@ -5,7 +5,6 @@ from django.core.validators import RegexValidator
 numero_validator = RegexValidator(r'^\d+$', 'Apenas números são permitidos.')
 
 
-
 class Desligamento(models.Model):
     codigo = models.CharField("Código", max_length=20)
     nome = models.CharField("Nome", max_length=100)
@@ -31,7 +30,6 @@ class Desligamento(models.Model):
     telemarketing = models.BooleanField("Área liberada para Telemarketing?", default=False)
     nova_contratacao = models.BooleanField("Há previsão de nova contratação?", default=False)
 
-
     data_registro = models.DateField("Data de Registro", auto_now_add=True)
 
     criado_por = models.ForeignKey(
@@ -54,9 +52,7 @@ class Desligamento(models.Model):
         return self.criado_por.first_name or self.criado_por.username if self.criado_por else "—"
 
 
-
 class Admissao(models.Model):
-
     codigo = models.CharField("Código RCA", max_length=20)
     nome = models.CharField("Nome", max_length=150)
     nascimento = models.DateField("Nascimento", null=True, blank=True)
@@ -96,8 +92,13 @@ class Admissao(models.Model):
 
     observacoes = models.TextField("Observações", blank=True, null=True)
 
-    criado_por = models.ForeignKey(User, verbose_name="Criado por",
-                                   on_delete=models.SET_NULL, null=True, blank=True)
+    criado_por = models.ForeignKey(
+        User,
+        verbose_name="Criado por",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Admissão"
@@ -112,7 +113,6 @@ class Admissao(models.Model):
 
 
 class Distrato(models.Model):
-
     nome = models.CharField("Nome do Representante", max_length=150)
     cpf = models.CharField("CPF", max_length=14, blank=True, null=True)
     rg = models.CharField("RG", max_length=20, blank=True, null=True)
@@ -152,8 +152,13 @@ class Distrato(models.Model):
     titular = models.CharField("Titular", max_length=100, blank=True, null=True)
     telefone = models.CharField("Telefone", max_length=15, validators=[numero_validator], blank=True, null=True)
 
-    criado_por = models.ForeignKey(User, verbose_name="Criado por",
-                                   on_delete=models.SET_NULL, null=True, blank=True)
+    criado_por = models.ForeignKey(
+        User,
+        verbose_name="Criado por",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Distrato"

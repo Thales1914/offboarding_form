@@ -1,7 +1,8 @@
+from django import forms
 from django.contrib import admin
 from django.urls import path, reverse
 from django.http import HttpResponse
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.html import format_html
 from django.db.models import Count
 
@@ -14,25 +15,60 @@ from .services.excel import (
     exportar_distrato_excel,
 )
 
-class FiltroQtdDesligamentos(admin.SimpleListFilter):
-    title = "Quantidade de desligamentos"
-    parameter_name = "qtd_desligamentos"
 
-    def lookups(self, request, model_admin):
-        return [
-            ("1", "1 desligamento"),
-            ("5", "5 ou mais"),
-            ("10", "10 ou mais"),
+# ==========================================================
+#   FORMS PERSONALIZADOS PARA OBRIGATORIEDADE + VALIDAÇÃO
+# ==========================================================
+class DesligamentoForm(forms.ModelForm):
+    class Meta:
+        model = Desligamento
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        obrigatorios = ["contato", "motivo"]
+        for campo in obrigatorios:
+            self.fields[campo].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        codigo = cleaned_data.get("codigo")
+
+        if codigo and Desligamento.objects.filter(codigo=codigo).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(f"O colaborador com código {codigo} já possui um desligamento registrado.")
+
+        return cleaned_data
+
+
+class AdmissaoForm(forms.ModelForm):
+    class Meta:
+        model = Admissao
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        obrigatorios = [
+            "nascimento", "naturalidade", "uf",
+            "endereco", "bairro", "cidade", "estado", "cep",
+            "fone", "email", "rg", "orgao_exp", "emissao", "cpf",
+            "banco", "agencia", "conta", "operacao",
+            "data_admissao", "cargo", "supervisor_responsavel"
         ]
+        for campo in obrigatorios:
+            self.fields[campo].required = True
 
-    def queryset(self, request, queryset):
-        if self.value() == "1":
-            return queryset.annotate(total=Count("criado_por")).filter(total=1)
-        if self.value() == "5":
-            return queryset.annotate(total=Count("criado_por")).filter(total__gte=5)
-        if self.value() == "10":
-            return queryset.annotate(total=Count("criado_por")).filter(total__gte=10)
-        return queryset
+    def clean(self):
+        cleaned_data = super().clean()
+        cpf = cleaned_data.get("cpf")
+        codigo = cleaned_data.get("codigo")
+
+        if cpf and Admissao.objects.filter(cpf=cpf).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(f"Já existe uma admissão registrada com o CPF {cpf}.")
+
+        if codigo and Admissao.objects.filter(codigo=codigo).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(f"Já existe uma admissão registrada com o código {codigo}.")
+
+        return cleaned_data
 
 
 # ==========================================================
@@ -40,6 +76,8 @@ class FiltroQtdDesligamentos(admin.SimpleListFilter):
 # ==========================================================
 @admin.register(Desligamento)
 class DesligamentoAdmin(admin.ModelAdmin):
+    form = DesligamentoForm
+
     list_display = (
         "nome",
         "codigo",
@@ -50,7 +88,7 @@ class DesligamentoAdmin(admin.ModelAdmin):
         "qtd_desligamentos_colaborador",
     )
     search_fields = ("nome", "codigo", "area_atuacao")
-    list_filter = ("area_atuacao", "demissao", "criado_por", FiltroQtdDesligamentos)
+    list_filter = ("area_atuacao", "demissao", "criado_por")
 
     fieldsets = (
         ('📌 Dados do Colaborador', {
@@ -69,7 +107,6 @@ class DesligamentoAdmin(admin.ModelAdmin):
         ('🔎 Perguntas extras', {
             'fields': ('substituto', 'telemarketing', 'nova_contratacao')
         }),
-
     )
 
     def save_model(self, request, obj, form, change):
@@ -133,6 +170,8 @@ class DesligamentoAdmin(admin.ModelAdmin):
 # ==========================================================
 @admin.register(Admissao)
 class AdmissaoAdmin(admin.ModelAdmin):
+    form = AdmissaoForm
+
     list_display = ("nome", "codigo", "supervisor", "data_admissao", "cargo", "criado_por")
     search_fields = ("nome", "codigo", "cpf", "cargo", "supervisor_responsavel")
     list_filter = ("cargo", "data_admissao", "criado_por")
@@ -171,7 +210,6 @@ class AdmissaoAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
         if is_new:
-            from .services.notifications import notificar_admissao
             notificar_admissao(obj, request.user)
 
     def get_queryset(self, request):
@@ -179,7 +217,7 @@ class AdmissaoAdmin(admin.ModelAdmin):
         if request.user.is_superuser or request.user.groups.filter(name="RH").exists():
             return qs
         return qs.filter(criado_por=request.user)
-    
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -205,7 +243,7 @@ class AdmissaoAdmin(admin.ModelAdmin):
 
 
 # ==========================================================
-#               DISTRATO DO RCA(SOMENTE RH)
+#               DISTRATO DO RCA (SEM MUDANÇAS)
 # ==========================================================
 @admin.register(Distrato)
 class DistratoAdmin(admin.ModelAdmin):
@@ -251,7 +289,7 @@ class DistratoAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         export_url = reverse("admin:rh_distrato_exportar_excel_individual", args=[object_id])
         extra_context['extra_buttons'] = format_html(
-             f'<a class="button" style="margin-left:10px;" href="{export_url}">📤 Exportar Distrato</a>'
+            f'<a class="button" style="margin-left:10px;" href="{export_url}">📤 Exportar Distrato</a>'
         )
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
