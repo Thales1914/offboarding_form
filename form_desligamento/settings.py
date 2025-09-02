@@ -3,8 +3,8 @@ import os
 import dj_database_url
 import sys
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,7 +15,7 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
-    "jazzmin", 
+    "jazzmin",   # precisa vir antes do admin
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,9 +75,14 @@ TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
+# === Arquivos estáticos ===
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Só use STATICFILES_DIRS se tiver realmente a pasta "static"
+STATICFILES_DIRS = []
+if (BASE_DIR / "static").exists():
+    STATICFILES_DIRS.append(BASE_DIR / "static")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -99,10 +104,11 @@ LOGGING = {
 LOGIN_REDIRECT_URL = "/admin/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 
+# === Configurações de e-mail ===
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")  
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))  
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False") == "True"
 
