@@ -17,10 +17,7 @@ class Migration(migrations.Migration):
             name='hierarquia',
             options={'verbose_name': 'Hierarquia', 'verbose_name_plural': 'Hierarquias'},
         ),
-        migrations.AlterUniqueTogether(
-            name='hierarquia',
-            unique_together=set(),
-        ),
+    
         migrations.RemoveField(
             model_name='distrato',
             name='bonus',
