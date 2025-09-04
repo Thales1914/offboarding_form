@@ -26,7 +26,7 @@ class DesligamentoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        obrigatorios = ["contato", "motivo"]
+        obrigatorios = ["motivo"]
         for campo in obrigatorios:
             self.fields[campo].required = True
 
