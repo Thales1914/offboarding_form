@@ -3,11 +3,12 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('rh', '0013_alter_hierarquia_unique_together'),
+        ('rh', '0011_remove_desligamento_observacoes_alter_admissao_cargo_and_more'),
     ]
 
     operations = [
