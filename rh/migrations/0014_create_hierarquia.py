@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('rh', '0011_remove_desligamento_observacoes_alter_admissao_cargo_and_more'),
+        ('rh', '0013_alter_hierarquia_unique_together'),
     ]
 
     operations = [
