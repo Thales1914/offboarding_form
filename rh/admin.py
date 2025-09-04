@@ -1,19 +1,19 @@
 from django import forms
 from django.contrib import admin
 from django.urls import path, reverse
-from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.html import format_html
 from django.db.models import Count
 
 from .forms import DistratoForm
-from .models import Desligamento, Admissao, Distrato
+from .models import Desligamento, Admissao, Distrato, Hierarquia
 from .services.notifications import notificar_admissao, notificar_desligamento
 from .services.excel import (
     exportar_desligamento_excel,
     exportar_admissao_excel,
     exportar_distrato_excel,
 )
+from .services.permission import users_visiveis_para
 
 
 # ==========================================================
@@ -79,13 +79,8 @@ class DesligamentoAdmin(admin.ModelAdmin):
     form = DesligamentoForm
 
     list_display = (
-        "nome",
-        "codigo",
-        "supervisor",
-        "demissao",
-        "area_atuacao",
-        "criado_por",
-        "qtd_desligamentos_colaborador",
+        "nome", "codigo", "supervisor", "demissao",
+        "area_atuacao", "criado_por", "qtd_desligamentos_colaborador"
     )
     search_fields = ("nome", "codigo", "area_atuacao")
     list_filter = ("area_atuacao", "demissao", "criado_por")
@@ -120,25 +115,19 @@ class DesligamentoAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.annotate(total_desligamentos=Count("criado_por"))
-        if request.user.is_superuser or request.user.groups.filter(name="RH").exists():
-            return qs
-        return qs.filter(criado_por=request.user)
+        users_visiveis = users_visiveis_para(request.user)
+        return qs.filter(criado_por__in=users_visiveis).annotate(
+            total_desligamentos=Count("criado_por")
+        )
 
     def qtd_desligamentos_colaborador(self, obj):
-        return Desligamento.objects.filter(criado_por=obj.criado_por).count()
+        return obj.total_desligamentos
     qtd_desligamentos_colaborador.short_description = "Qtd desligamentos"
 
     def has_export_permission(self, request):
         return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
 
-    def has_view_permission(self, request, obj=None):
-        if obj is None:
-            return True
-        if request.user.is_superuser or request.user.groups.filter(name="RH").exists():
-            return True
-        return obj.criado_por == request.user
-
+    # botão de exportação
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -214,9 +203,11 @@ class AdmissaoAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.groups.filter(name="RH").exists():
-            return qs
-        return qs.filter(criado_por=request.user)
+        users_visiveis = users_visiveis_para(request.user)
+        return qs.filter(criado_por__in=users_visiveis)
+
+    def has_export_permission(self, request):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
 
     def get_urls(self):
         urls = super().get_urls()
@@ -238,19 +229,20 @@ class AdmissaoAdmin(admin.ModelAdmin):
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def exportar_excel(self, request, admissao_id):
+        if not self.has_export_permission(request):
+            raise PermissionDenied("Você não tem permissão para exportar este registro.")
         admissao = Admissao.objects.get(id=admissao_id)
         return exportar_admissao_excel(admissao)
 
 
 # ==========================================================
-#               DISTRATO DO RCA (SEM MUDANÇAS)
+#               DISTRATO DO RCA
 # ==========================================================
 @admin.register(Distrato)
 class DistratoAdmin(admin.ModelAdmin):
-    list_display = (
-        "nome", "cpf", "data_admissao", "data_demissao",
-        "total_geral", "total_ultimos_3_meses", "criado_por"
-    )
+    form = DistratoForm
+
+    list_display = ("nome", "cpf", "data_admissao", "data_demissao", "total_geral", "total_ultimos_3_meses", "criado_por")
     search_fields = ("nome", "cpf", "rg")
     list_filter = ("data_demissao", "criado_por")
 
@@ -274,6 +266,14 @@ class DistratoAdmin(admin.ModelAdmin):
             obj.criado_por = request.user
         super().save_model(request, obj, form, change)
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        users_visiveis = users_visiveis_para(request.user)
+        return qs.filter(criado_por__in=users_visiveis)
+
+    def has_export_permission(self, request):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -294,5 +294,28 @@ class DistratoAdmin(admin.ModelAdmin):
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def exportar_excel(self, request, distrato_id):
+        if not self.has_export_permission(request):
+            raise PermissionDenied("Você não tem permissão para exportar este registro.")
         distrato = Distrato.objects.get(id=distrato_id)
         return exportar_distrato_excel(distrato)
+
+
+# ==========================================================
+#               HIERARQUIA
+# ==========================================================
+@admin.register(Hierarquia)
+class HierarquiaAdmin(admin.ModelAdmin):
+    list_display = ("coordenador", "supervisor")
+    search_fields = ("coordenador__username", "supervisor__username")
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.groups.filter(name="RH").exists()

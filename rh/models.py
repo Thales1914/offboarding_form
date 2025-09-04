@@ -6,11 +6,11 @@ numero_validator = RegexValidator(r'^\d+$', 'Apenas números são permitidos.')
 
 
 class Desligamento(models.Model):
-    codigo = models.CharField("Código", max_length=20)
+    codigo = models.CharField("Código", max_length=20, unique=True, db_index=True)
     nome = models.CharField("Nome", max_length=100)
     contato = models.CharField("Contato Particular", max_length=50, blank=True, null=True)
-    admissao = models.DateField("Admissão")
-    demissao = models.DateField("Demissão")
+    admissao = models.DateField("Admissão", null=True, blank=True)
+    demissao = models.DateField("Demissão", null=True, blank=True)
     area_atuacao = models.CharField("Área de Atuação", max_length=100)
 
     motivo = models.TextField("Motivo do Desligamento", blank=True, null=True)
@@ -53,7 +53,7 @@ class Desligamento(models.Model):
 
 
 class Admissao(models.Model):
-    codigo = models.CharField("Código RCA", max_length=20)
+    codigo = models.CharField("Código RCA", max_length=20, unique=True, db_index=True)
     nome = models.CharField("Nome", max_length=150)
     nascimento = models.DateField("Nascimento", null=True, blank=True)
     naturalidade = models.CharField("Naturalidade", max_length=100, blank=True, null=True)
@@ -73,7 +73,7 @@ class Admissao(models.Model):
     rg = models.CharField("RG", max_length=20, blank=True, null=True)
     orgao_exp = models.CharField("Órgão Expedidor", max_length=20, blank=True, null=True)
     emissao = models.DateField("Data de Emissão RG", null=True, blank=True)
-    cpf = models.CharField("CPF", max_length=14, blank=True, null=True)
+    cpf = models.CharField("CPF", max_length=14, blank=True, null=True, unique=True, db_index=True)
 
     banco = models.CharField("Banco", max_length=100, blank=True, null=True)
     agencia = models.CharField("Agência", max_length=20, blank=True, null=True)
@@ -88,7 +88,13 @@ class Admissao(models.Model):
     coordenador = models.CharField("Coordenador", max_length=100, blank=True, null=True)
 
     conta_gov = models.CharField("Conta Gov", max_length=100, blank=True, null=True)
-    senha_gov = models.CharField("Senha Gov", max_length=100, blank=True, null=True)
+    senha_gov = models.CharField(
+        "Senha Gov (NÃO armazenar em produção)",
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="⚠️ Não recomendado salvar senha em texto puro"
+    )
 
     observacoes = models.TextField("Observações", blank=True, null=True)
 
@@ -119,31 +125,11 @@ class Distrato(models.Model):
 
     data_admissao = models.DateField("Data de Admissão", null=True, blank=True)
     data_demissao = models.DateField("Data de Demissão", null=True, blank=True)
-    dias_trabalhados = models.IntegerField("Dias Trabalhados", null=True, blank=True)
-    meses_trabalhados = models.IntegerField("Meses Trabalhados", null=True, blank=True)
-    periodo_anos = models.DecimalField("Período em Anos", max_digits=5, decimal_places=2, null=True, blank=True)
 
     total_geral = models.DecimalField("Total Geral - Comissão período trabalhado",
                                       max_digits=10, decimal_places=2, null=True, blank=True)
-    indenizacao_1_12 = models.DecimalField("Indenização 1/12 avos",
-                                           max_digits=10, decimal_places=2, null=True, blank=True)
-    comissoes_bloqueadas = models.DecimalField("Comissões Bloqueadas",
-                                               max_digits=10, decimal_places=2, null=True, blank=True)
-    comissao_mes_corrente = models.DecimalField("Comissão do Mês Corrente",
-                                                max_digits=10, decimal_places=2, null=True, blank=True)
-    gratificacao = models.DecimalField("Gratificação e Outros",
-                                       max_digits=10, decimal_places=2, null=True, blank=True)
-
     total_ultimos_3_meses = models.DecimalField("Total Comissão últimos 3 meses",
                                                 max_digits=10, decimal_places=2, null=True, blank=True)
-    indenizacao_1_3 = models.DecimalField("Indenização 1/3",
-                                          max_digits=10, decimal_places=2, null=True, blank=True)
-    bonus = models.DecimalField("Bônus",
-                                max_digits=10, decimal_places=2, null=True, blank=True)
-    descontos = models.DecimalField("Descontos / Empréstimos / Vales",
-                                    max_digits=10, decimal_places=2, null=True, blank=True)
-    valor_rescisao = models.DecimalField("Valor da Rescisão",
-                                         max_digits=10, decimal_places=2, null=True, blank=True)
 
     banco = models.CharField("Banco", max_length=50, blank=True, null=True)
     agencia = models.CharField("Agência", max_length=10, validators=[numero_validator], blank=True, null=True)
@@ -166,3 +152,15 @@ class Distrato(models.Model):
 
     def __str__(self):
         return f"Distrato - {self.nome}"
+
+
+class Hierarquia(models.Model):
+    coordenador = models.ForeignKey(User, on_delete=models.CASCADE, related_name="coordenador_set")
+    supervisor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supervisor_set")
+
+    class Meta:
+        verbose_name = "Hierarquia"
+        verbose_name_plural = "Hierarquias"
+
+    def __str__(self):
+        return f"{self.coordenador.username} → {self.supervisor.username}"
