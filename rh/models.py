@@ -4,6 +4,11 @@ from django.core.validators import RegexValidator
 
 numero_validator = RegexValidator(r'^\d+$', 'Apenas números são permitidos.')
 
+STATUS_CHOICES = [
+    ("pendente", "Pendente"),
+    ("confirmado", "Confirmado"),
+]
+
 
 class Desligamento(models.Model):
     codigo = models.CharField("Código", max_length=20, unique=True, db_index=True)
@@ -38,6 +43,13 @@ class Desligamento(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True
+    )
+
+    status = models.CharField(
+        "Status",
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pendente",
     )
 
     class Meta:
@@ -106,6 +118,13 @@ class Admissao(models.Model):
         blank=True
     )
 
+    status = models.CharField(
+        "Status",
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pendente",
+    )
+
     class Meta:
         verbose_name = "Admissão"
         verbose_name_plural = "Admissões"
@@ -144,6 +163,13 @@ class Distrato(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True
+    )
+
+    status = models.CharField(
+        "Status",
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pendente",
     )
 
     class Meta:

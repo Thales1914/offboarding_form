@@ -80,10 +80,11 @@ class DesligamentoAdmin(admin.ModelAdmin):
 
     list_display = (
         "nome", "codigo", "supervisor", "demissao",
-        "area_atuacao", "criado_por", "qtd_desligamentos_colaborador"
+        "area_atuacao", "criado_por", "status", "qtd_desligamentos_colaborador"
     )
     search_fields = ("nome", "codigo", "area_atuacao")
-    list_filter = ("area_atuacao", "demissao", "criado_por")
+    list_filter = ("status", "area_atuacao", "demissao", "criado_por")
+    list_editable = ("status",)
 
     fieldsets = (
         ('📌 Dados do Colaborador', {
@@ -101,6 +102,9 @@ class DesligamentoAdmin(admin.ModelAdmin):
         }),
         ('🔎 Perguntas extras', {
             'fields': ('substituto', 'telemarketing', 'nova_contratacao')
+        }),
+        ('📊 Status', {
+            'fields': ('status',)
         }),
     )
 
@@ -127,7 +131,6 @@ class DesligamentoAdmin(admin.ModelAdmin):
     def has_export_permission(self, request):
         return request.user.is_superuser or request.user.groups.filter(name="RH").exists()
 
-    # botão de exportação
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -161,9 +164,10 @@ class DesligamentoAdmin(admin.ModelAdmin):
 class AdmissaoAdmin(admin.ModelAdmin):
     form = AdmissaoForm
 
-    list_display = ("nome", "codigo", "supervisor", "data_admissao", "cargo", "criado_por")
+    list_display = ("nome", "codigo", "supervisor", "data_admissao", "cargo", "criado_por", "status")
     search_fields = ("nome", "codigo", "cpf", "cargo", "supervisor_responsavel")
-    list_filter = ("cargo", "data_admissao", "criado_por")
+    list_filter = ("status", "cargo", "data_admissao", "criado_por")
+    list_editable = ("status",)
 
     fieldsets = (
         ("📌 Dados Pessoais", {
@@ -189,6 +193,9 @@ class AdmissaoAdmin(admin.ModelAdmin):
         }),
         ("📝 Observações", {
             "fields": ("observacoes",)
+        }),
+        ("📊 Status", {
+            "fields": ("status",)
         }),
     )
 
@@ -242,9 +249,11 @@ class AdmissaoAdmin(admin.ModelAdmin):
 class DistratoAdmin(admin.ModelAdmin):
     form = DistratoForm
 
-    list_display = ("nome", "cpf", "data_admissao", "data_demissao", "total_geral", "total_ultimos_3_meses", "criado_por")
+    list_display = ("nome", "cpf", "data_admissao", "data_demissao",
+                    "total_geral", "total_ultimos_3_meses", "criado_por", "status")
     search_fields = ("nome", "cpf", "rg")
-    list_filter = ("data_demissao", "criado_por")
+    list_filter = ("status", "data_demissao", "criado_por")
+    list_editable = ("status",)
 
     fieldsets = (
         ("📌 Dados do Representante", {
@@ -258,6 +267,9 @@ class DistratoAdmin(admin.ModelAdmin):
         }),
         ("🏦 Dados Bancários", {
             "fields": ("banco", "agencia", "operacao", "conta_corrente", "titular", "telefone")
+        }),
+        ("📊 Status", {
+            "fields": ("status",)
         }),
     )
 
