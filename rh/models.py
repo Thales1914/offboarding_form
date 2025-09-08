@@ -7,6 +7,7 @@ numero_validator = RegexValidator(r'^\d+$', 'Apenas números são permitidos.')
 STATUS_CHOICES = [
     ("pendente", "Pendente"),
     ("confirmado", "Confirmado"),
+    ("troca", "Troca"),
 ]
 
 
@@ -18,7 +19,7 @@ class Desligamento(models.Model):
     demissao = models.DateField("Demissão", null=True, blank=True)
     area_atuacao = models.CharField("Área de Atuação", max_length=100)
 
-    motivo = models.TextField("Motivo do Desligamento", blank=True, null=True)
+    motivo = models.TextField("Motivo do Desligamento ( Se for trocar de rota, colocar o novo código)", blank=True, null=True)
 
     fardamento = models.BooleanField("Fardamento", default=False)
     chip_voz = models.BooleanField("Chip de Voz", default=False)
