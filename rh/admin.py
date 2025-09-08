@@ -17,7 +17,7 @@ from .services.permission import users_visiveis_para
 
 
 # ==========================================================
-#   FORMS PERSONALIZADOS PARA OBRIGATORIEDADE + VALIDAÇÃO
+#   FORMS PERSONALIZADOS PARA OBRIGATORIEDADE + AJUSTES
 # ==========================================================
 class DesligamentoForm(forms.ModelForm):
     class Meta:
@@ -32,11 +32,6 @@ class DesligamentoForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        codigo = cleaned_data.get("codigo")
-
-        if codigo and Desligamento.objects.filter(codigo=codigo).exclude(pk=self.instance.pk).exists():
-            raise ValidationError(f"O colaborador com código {codigo} já possui um desligamento registrado.")
-
         return cleaned_data
 
 
@@ -60,13 +55,9 @@ class AdmissaoForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         cpf = cleaned_data.get("cpf")
-        codigo = cleaned_data.get("codigo")
 
         if cpf and Admissao.objects.filter(cpf=cpf).exclude(pk=self.instance.pk).exists():
             raise ValidationError(f"Já existe uma admissão registrada com o CPF {cpf}.")
-
-        if codigo and Admissao.objects.filter(codigo=codigo).exclude(pk=self.instance.pk).exists():
-            raise ValidationError(f"Já existe uma admissão registrada com o código {codigo}.")
 
         return cleaned_data
 
