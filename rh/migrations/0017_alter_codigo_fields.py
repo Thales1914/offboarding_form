@@ -3,7 +3,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("rh", "0016"),  # última migration aplicada
+        ("rh", "0015_admissao_status_desligamento_status_distrato_status"),
     ]
 
     operations = [
