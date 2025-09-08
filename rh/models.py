@@ -12,7 +12,7 @@ STATUS_CHOICES = [
 
 
 class Desligamento(models.Model):
-    codigo = models.CharField("Código", max_length=20, unique=True, db_index=True)
+    codigo = models.CharField("Código", max_length=20, db_index=True)
     nome = models.CharField("Nome", max_length=100)
     contato = models.CharField("Contato Particular", max_length=50, blank=True, null=True)
     admissao = models.DateField("Admissão", null=True, blank=True)
@@ -66,7 +66,7 @@ class Desligamento(models.Model):
 
 
 class Admissao(models.Model):
-    codigo = models.CharField("Código RCA", max_length=20, unique=True, db_index=True)
+    codigo = models.CharField("Código RCA", max_length=20, db_index=True)
     nome = models.CharField("Nome", max_length=150)
     nascimento = models.DateField("Nascimento", null=True, blank=True)
     naturalidade = models.CharField("Naturalidade", max_length=100, blank=True, null=True)
@@ -86,7 +86,7 @@ class Admissao(models.Model):
     rg = models.CharField("RG", max_length=20, blank=True, null=True)
     orgao_exp = models.CharField("Órgão Expedidor", max_length=20, blank=True, null=True)
     emissao = models.DateField("Data de Emissão RG", null=True, blank=True)
-    cpf = models.CharField("CPF", max_length=14, blank=True, null=True, unique=True, db_index=True)
+    cpf = models.CharField("CPF", max_length=14, blank=True, null=True, unique=True, db_index=True) 
 
     banco = models.CharField("Banco", max_length=100, blank=True, null=True)
     agencia = models.CharField("Agência", max_length=20, blank=True, null=True)
